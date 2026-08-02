@@ -1,0 +1,11 @@
+worker-threads: 2
+worker-fs-threads: 2
+logger-level: debug
+
+is-testing: true
+
+server-port: 8080
+
+# change to URI of your postgres database, applies only without make start-debug
+# pg-connection: postgresql://testsuite@localhost:15433/short_link_db_links
+pg-connection: postgresql://oartemiy@localhost:5432/short_link

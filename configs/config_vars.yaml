@@ -1,0 +1,10 @@
+worker-threads: 4
+worker-fs-threads: 2
+logger-level: info
+
+is-testing: false
+
+server-port: 8080
+
+# change to URI of your postgres database, applies only without make start-debug
+pg-connection: postgresql://oartemiy@localhost:5432/short_link
