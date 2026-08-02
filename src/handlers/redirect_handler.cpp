@@ -23,10 +23,11 @@ std::string Redirect::HandleRequestThrow(
     [[maybe_unused]] userver::server::request::RequestContext& context) const {
     auto code = request.GetPathArg("code");
 
-    auto res = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kSlave,
-                                    "UPDATE short_link_schema.links SET clicks = clicks + 1 WHERE code = $1 "
-                                    "RETURNING original_url",
-                                    code);
+    auto res = pg_cluster_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster,
+        "UPDATE short_link_schema.links SET clicks = clicks + 1 WHERE code = $1 "
+        "RETURNING original_url",
+        code);
 
     auto original_url = res[0][0].As<std::string>();
 

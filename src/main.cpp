@@ -14,6 +14,7 @@
 
 #include "handlers/shorten_handler.hpp"
 #include "handlers/redirect_handler.hpp"
+#include "components/short_link_component.hpp"
 
 int main(int argc, char* argv[]) {
     auto component_list = userver::components::MinimalServerComponentList()
@@ -25,7 +26,8 @@ int main(int argc, char* argv[]) {
                               .Append<userver::congestion_control::Component>()
                               .Append<userver::components::Postgres>("postgres-db-links")
                               .Append<short_link::handlers::Shorten>()
-                              .Append<short_link::handlers::Redirect>();
+                              .Append<short_link::handlers::Redirect>()
+                              .Append<short_link::components::ShortLinkComponent>();
 
     return userver::utils::DaemonMain(argc, argv, component_list);
 }

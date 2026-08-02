@@ -23,9 +23,9 @@ Value Shorten::HandleRequestJsonThrow(const HttpRequest& request, const Value& r
         request.GetHttpResponse().SetStatus(userver::server::http::HttpStatus::kBadRequest);
         return error.ExtractValue();
     }
-    
+
     std::string code;
-    const auto default_ttl_seconds = 60 * 5;
+    constexpr auto kDefaultTtlSeconds = 60 * 5;
 
     do {
         code = short_link::impl::GenerateCode();
@@ -45,7 +45,7 @@ Value Shorten::HandleRequestJsonThrow(const HttpRequest& request, const Value& r
                              "  'created_at', created_at,"
                              "  'expires_at', expires_at"
                              ")",
-                             code, original_url, default_ttl_seconds);
+                             code, original_url, kDefaultTtlSeconds);
 
     auto json_result = res[0][0].As<userver::formats::json::Value>();
     request.GetHttpResponse().SetStatus(userver::server::http::HttpStatus::kCreated);

@@ -75,4 +75,6 @@ components_manager:
             path: /{code}
             method: GET
             task_processor: main-task-processor
+
+        short-link-component: {}
             
