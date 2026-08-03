@@ -71,10 +71,16 @@ components_manager:
             method: POST  # It will only reply to GET (HEAD) and POST requests.
             task_processor: main-task-processor  # Run it on CPU bound task processor
 
+        handler-info:
+            path: /info/{code}
+            method: GET
+            task_processor: main-task-processor
+
         handler-redirect:
             path: /{code}
             method: GET
             task_processor: main-task-processor
 
         short-link-component: {}
+
             

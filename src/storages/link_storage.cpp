@@ -61,8 +61,9 @@ void LinkStorage::CleanupExpiredLinks() const {
 
 std::optional<LinkInfo> LinkStorage::GetCodeInfo(const std::string& code) const {
     auto res = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kSlave,
-                                    "SELECT original_url, created_at, expires_at, clicks",
-                                    "FROM short_link_schema.links", "WHERE code = $1", code);
+                                    "SELECT original_url, created_at, expires_at, clicks FROM "
+                                    "short_link_schema.links WHERE code = $1",
+                                    code);
     std::optional<LinkInfo> link_info_opt{std::nullopt};
     if (!res.IsEmpty()) {
         auto short_url = "http://localhost:8080/" + code;

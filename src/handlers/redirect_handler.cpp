@@ -23,7 +23,7 @@ Redirect::Redirect(const ComponentConfig& config, const ComponentContext& compon
 std::string Redirect::HandleRequestThrow(
     const userver::server::http::HttpRequest& request,
     [[maybe_unused]] userver::server::request::RequestContext& context) const {
-    auto code = request.GetPathArg("code");
+    const auto& code = request.GetPathArg("code");
 
     auto result = link_storage_ref_.Redirect(code);
 
