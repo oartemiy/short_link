@@ -25,7 +25,7 @@ Info::Value Info::HandleRequestJsonThrow(const HttpRequest& request,
         result = info->ToJSON();
     } else {
         userver::formats::json::ValueBuilder json;
-        json["error"] = "Short link with code: \"" + code + "\" not found";
+        json["error"] = "Short link with code: " + code + " not found";
         result = json.ExtractValue();
     }
     return result;

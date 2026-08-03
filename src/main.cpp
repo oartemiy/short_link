@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
             .Append<userver::congestion_control::Component>()
             .Append<userver::components::Postgres>("postgres-db-links")
 
-            .Append<short_link::components::ShortLinkComponent>()  // "short-link-component"
+            .Append<short_link::components::ShortLinkComponent>(
+                "short-link-component")  // optionally to add "short-link-component"
 
             .Append<short_link::handlers::Info>()
             .Append<short_link::handlers::Shorten>()
