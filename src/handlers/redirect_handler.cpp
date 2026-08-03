@@ -4,6 +4,7 @@
 #include <userver/storages/postgres/component.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/server/http/http_status.hpp>
+#include "components/short_link_component.hpp"
 
 using userver::components::ComponentConfig;
 using userver::components::ComponentContext;
@@ -13,9 +14,10 @@ namespace short_link::handlers {
 
 Redirect::Redirect(const ComponentConfig& config, const ComponentContext& component_context)
     : HttpHandlerBase(config, component_context),
-      pg_cluster_(
-          component_context.FindComponent<userver::components::Postgres>("postgres-db-links")
-              .GetCluster()) {
+      link_storage_ref_(
+          component_context
+              .FindComponent<short_link::components::ShortLinkComponent>("short-link-component")
+              .GetLinkStorageRef()) {
 }
 
 std::string Redirect::HandleRequestThrow(
@@ -23,16 +25,16 @@ std::string Redirect::HandleRequestThrow(
     [[maybe_unused]] userver::server::request::RequestContext& context) const {
     auto code = request.GetPathArg("code");
 
-    auto res = pg_cluster_->Execute(
-        userver::storages::postgres::ClusterHostType::kMaster,
-        "UPDATE short_link_schema.links SET clicks = clicks + 1 WHERE code = $1 "
-        "RETURNING original_url",
-        code);
+    auto result = link_storage_ref_.Redirect(code);
 
-    auto original_url = res[0][0].As<std::string>();
-
-    request.GetHttpResponse().SetHeader(userver::http::headers::kLocation, original_url);
-    request.GetHttpResponse().SetStatus(userver::server::http::HttpStatus::kPermanentRedirect);
+    if (result.has_value()) {
+        request.GetHttpResponse().SetHeader(userver::http::headers::kLocation, *result);
+        request.GetHttpResponse().SetStatus(userver::server::http::HttpStatus::kPermanentRedirect);
+    } else {
+        request.GetHttpResponse().SetStatusNotFound();
+        request.GetHttpResponse().SetContentType("text/plain; charset=utf-8");
+        return "Short link with code: \"" + code + "\" not found";
+    }
 
     return "";
 }

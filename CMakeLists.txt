@@ -27,11 +27,12 @@ add_library(
     src/handlers/shorten_handler.cpp
     src/handlers/redirect_handler.cpp
     src/components/short_link_component.cpp
+    src/storages/link_storage.cpp
     
 )
 target_link_libraries(
     ${PROJECT_NAME}_objs
-    PUBLIC userver::core #
+    PUBLIC userver::core
            userver::postgresql
 )
 

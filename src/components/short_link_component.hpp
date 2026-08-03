@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 #include <string_view>
 #include <userver/components/component_base.hpp>
@@ -5,6 +7,7 @@
 #include "userver/components/component_config.hpp"
 #include "userver/components/component_context.hpp"
 #include <userver/storages/postgres/cluster.hpp>
+#include "storages/link_storage.hpp"
 
 namespace short_link::components {
 
@@ -21,9 +24,13 @@ public:
 
     ShortLinkComponent(const ComponentConfig& config, const ComponentContext& component_context);
 
+    const short_link::storages::LinkStorage& GetLinkStorageRef() const {
+        return link_storage_;
+    }
+
 private:
-    void ClearLinks() const; 
-    userver::storages::postgres::ClusterPtr pg_cluster_;
+    void ClearLinks() const;
+    short_link::storages::LinkStorage link_storage_;
     PeriodicTask periodic_task_;
 };
 

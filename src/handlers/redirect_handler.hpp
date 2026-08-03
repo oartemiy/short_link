@@ -1,6 +1,8 @@
+#pragma once
+
 #include "userver/server/handlers/http_handler_base.hpp"
 #include <userver/components/component.hpp>
-#include "userver/storages/postgres/postgres_fwd.hpp"
+#include "storages/link_storage.hpp"
 
 namespace short_link::handlers {
 
@@ -16,6 +18,6 @@ public:
         userver::server::request::RequestContext& context) const override;
 
 private:
-    userver::storages::postgres::ClusterPtr pg_cluster_;
+    const short_link::storages::LinkStorage& link_storage_ref_;
 };
 }  // namespace short_link::handlers

@@ -1,16 +1,17 @@
 #include "shorten_handler.hpp"
 
 #include <userver/storages/postgres/component.hpp>
-#include "impl/generate_code.hpp"
+#include "components/short_link_component.hpp"
 
 namespace short_link::handlers {
 
 Shorten::Shorten(const userver::components::ComponentConfig& config,
                  const userver::components::ComponentContext& component_context)
     : HttpHandlerJsonBase(config, component_context),
-      pg_cluster_(
-          component_context.FindComponent<userver::components::Postgres>("postgres-db-links")
-              .GetCluster()) {
+      link_storage_ref_(
+          component_context
+              .FindComponent<short_link::components::ShortLinkComponent>("short-link-component")
+              .GetLinkStorageRef()) {
 }
 
 Value Shorten::HandleRequestJsonThrow(const HttpRequest& request, const Value& request_json,
@@ -24,30 +25,9 @@ Value Shorten::HandleRequestJsonThrow(const HttpRequest& request, const Value& r
         return error.ExtractValue();
     }
 
-    std::string code;
-    constexpr auto kDefaultTtlSeconds = 60 * 5;
+    auto result = link_storage_ref_.InsertLink(original_url);
 
-    do {
-        code = short_link::impl::GenerateCode();
-    } while (!pg_cluster_
-                  ->Execute(userver::storages::postgres::ClusterHostType::kSlave,
-                            "SELECT code FROM short_link_schema.links WHERE code = $1", code)
-                  .IsEmpty());
-    auto res =
-        pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
-                             "INSERT INTO short_link_schema.links(code, original_url, created_at, "
-                             "expires_at) "
-                             "VALUES($1, $2, NOW(), NOW() + make_interval(secs => $3)) "
-                             "RETURNING json_build_object("
-                             "  'code', code,"
-                             "  'short_url', 'http://localhost:8080/' || code,"
-                             "  'original_url', original_url,"
-                             "  'created_at', created_at,"
-                             "  'expires_at', expires_at"
-                             ")",
-                             code, original_url, kDefaultTtlSeconds);
-
-    auto json_result = res[0][0].As<userver::formats::json::Value>();
+    auto json_result = result.ToJSON();
     request.GetHttpResponse().SetStatus(userver::server::http::HttpStatus::kCreated);
     return json_result;
 }

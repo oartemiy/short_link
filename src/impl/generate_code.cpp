@@ -10,7 +10,9 @@ constexpr const char* kBase62 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu
 std::mt19937 rand_generator(std::random_device{}());
 std::uniform_int_distribution<std::size_t> dist(0, 61);
 
-char GetRandomBase62Char() noexcept { return kBase62[dist(rand_generator)]; }
+char GetRandomBase62Char() noexcept {
+    return kBase62[dist(rand_generator)];
+}
 
 }  // namespace
 
