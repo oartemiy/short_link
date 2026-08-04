@@ -22,6 +22,7 @@ struct LinkInfo {
         json["original_url"] = original_url;
         json["created_at"] = created_at;
         json["expires_at"] = expires_at;
+        json["clicks"] = clicks;
         auto res = json.ExtractValue();
         return res;
     }

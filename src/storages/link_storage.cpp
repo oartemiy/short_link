@@ -17,7 +17,8 @@ LinkStorage::LinkStorage(const ComponentContext& component_context)
 bool LinkStorage::IsCodeAvailable(const std::string& code) const {
     return pg_cluster_
         ->Execute(userver::storages::postgres::ClusterHostType::kSlave,
-                  "SELECT code FROM short_link_schema.links WHERE code = $1", code)
+                  "SELECT code FROM short_link_schema.links WHERE code = $1",
+                  code)
         .IsEmpty();
 }
 
@@ -42,11 +43,11 @@ LinkInfo LinkStorage::InsertLink(const std::string& original_url) const {
 }
 
 std::optional<std::string> LinkStorage::Redirect(const std::string& code) const {
-    auto res = pg_cluster_->Execute(
-        userver::storages::postgres::ClusterHostType::kMaster,
-        "UPDATE short_link_schema.links SET clicks = clicks + 1 WHERE code = $1 "
-        "RETURNING original_url",
-        code);
+    auto res = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
+                                    "UPDATE short_link_schema.links SET clicks = clicks + 1 WHERE "
+                                    "code = $1 AND expires_at > NOW() "
+                                    "RETURNING original_url",
+                                    code);
     std::optional<std::string> original_url_opt{std::nullopt};
     if (!res.IsEmpty()) {
         original_url_opt = res[0][0].As<std::string>();
@@ -57,6 +58,14 @@ std::optional<std::string> LinkStorage::Redirect(const std::string& code) const 
 void LinkStorage::CleanupExpiredLinks() const {
     pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
                          "DELETE FROM short_link_schema.links WHERE expires_at <= NOW()");
+}
+
+bool LinkStorage::DeleteCode(const std::string& code) const {
+    auto res = pg_cluster_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster,
+        "DELETE FROM short_link_schema.links WHERE code = $1 AND expires_at > NOW() RETURNING code",
+        code);
+    return !res.IsEmpty();
 }
 
 std::optional<LinkInfo> LinkStorage::GetCodeInfo(const std::string& code) const {

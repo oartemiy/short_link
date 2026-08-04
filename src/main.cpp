@@ -12,6 +12,7 @@
 
 #include <userver/utils/daemon_run.hpp>
 
+#include "handlers/delete_handler.hpp"
 #include "handlers/info_handler.hpp"
 #include "handlers/shorten_handler.hpp"
 #include "handlers/redirect_handler.hpp"
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]) {
 
             .Append<short_link::handlers::Info>()
             .Append<short_link::handlers::Shorten>()
+            .Append<short_link::handlers::Delete>()
             .Append<short_link::handlers::Redirect>();
 
     return userver::utils::DaemonMain(argc, argv, component_list);

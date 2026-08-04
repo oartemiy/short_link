@@ -29,6 +29,7 @@ add_library(
     src/handlers/info_handler.cpp
     src/components/short_link_component.cpp
     src/storages/link_storage.cpp
+    src/handlers/delete_handler.cpp
     
 )
 target_link_libraries(

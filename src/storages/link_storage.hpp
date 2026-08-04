@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <userver/storages/postgres/postgres_fwd.hpp>
 #include "models/link_info.hpp"
 #include "userver/components/component_context.hpp"
@@ -16,11 +17,13 @@ public:
 
     explicit LinkStorage(const ComponentContext& component_context);
 
-    LinkInfo InsertLink(const std::string& original_url) const;
+    [[nodiscard]] LinkInfo InsertLink(const std::string& original_url) const;
 
-    std::optional<LinkInfo> GetCodeInfo(const std::string& code) const;
+    [[nodiscard]] std::optional<LinkInfo> GetCodeInfo(const std::string& code) const;
 
-    std::optional<std::string> Redirect(const std::string& code) const;
+    [[nodiscard]] std::optional<std::string> Redirect(const std::string& code) const;
+
+    [[nodiscard]] bool DeleteCode(const std::string& code) const;
 
     void CleanupExpiredLinks() const;
 
