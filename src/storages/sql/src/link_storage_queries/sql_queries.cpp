@@ -7,7 +7,9 @@ namespace link_storage_queries::sql {
 // Generated from cleanup_expired_links.sql
 const USERVER_NAMESPACE::storages::Query kCleanupExpiredLinks = {
 R"-(
-DELETE FROM short_link_schema.links WHERE expires_at <= NOW()
+DELETE FROM short_link_schema.links
+WHERE expires_at <= NOW()
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("cleanup_expired_links"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
@@ -20,9 +22,11 @@ DELETE FROM short_link_schema.links WHERE expires_at <= NOW()
 const USERVER_NAMESPACE::storages::Query kDeleteCode = {
 R"-(
 DELETE FROM short_link_schema.links
-WHERE
-    code = $1
-    AND expires_at > NOW() RETURNING code
+WHERE code = $1
+    AND expires_at > NOW()
+RETURNING
+    code
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("delete_code"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
@@ -39,9 +43,11 @@ SELECT
     created_at,
     expires_at,
     clicks
-FROM short_link_schema.links
+FROM
+    short_link_schema.links
 WHERE
     code = $1
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("get_code_info"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
@@ -53,22 +59,11 @@ WHERE
 // Generated from insert_link.sql
 const USERVER_NAMESPACE::storages::Query kInsertLink = {
 R"-(
-INSERT INTO
-    short_link_schema.links (
-        code,
-        original_url,
-        created_at,
-        expires_at
-    )
-VALUES (
-        $1,
-        $2,
-        NOW(),
-        NOW() + make_interval(secs => $3)
-    )
+INSERT INTO short_link_schema.links(code, original_url, created_at, expires_at)
+    VALUES ($1, $2, NOW(), NOW() + make_interval(secs => $3))
 RETURNING
-    created_at,
-    expires_at
+    created_at, expires_at
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("insert_link"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
@@ -80,7 +75,13 @@ RETURNING
 // Generated from is_code_available.sql
 const USERVER_NAMESPACE::storages::Query kIsCodeAvailable = {
 R"-(
-SELECT code FROM short_link_schema.links WHERE code = $1
+SELECT
+    code
+FROM
+    short_link_schema.links
+WHERE
+    code = $1
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("is_code_available"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
@@ -92,12 +93,16 @@ SELECT code FROM short_link_schema.links WHERE code = $1
 // Generated from redirect.sql
 const USERVER_NAMESPACE::storages::Query kRedirect = {
 R"-(
-UPDATE short_link_schema.links
+UPDATE
+    short_link_schema.links
 SET
     clicks = clicks + 1
 WHERE
     code = $1
-    AND expires_at > NOW() RETURNING original_url
+    AND expires_at > NOW()
+RETURNING
+    original_url
+
 )-",
     USERVER_NAMESPACE::storages::Query::NameLiteral("redirect"),
     USERVER_NAMESPACE::storages::Query::LogMode::kFull,
