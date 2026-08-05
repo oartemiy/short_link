@@ -32,12 +32,27 @@ add_library(
     src/handlers/delete_handler.cpp
     
 )
+
+userver_add_sql_library(
+    ${PROJECT_NAME}_sql
+    NAMESPACE
+    link_storage_queries
+    SOURCE_DIR
+    src/storages/sql
+    OUTPUT_DIR
+    ${CMAKE_SOURCE_DIR}/src/storages/sql
+    SQL_FILES
+    *.sql
+)
+
+target_include_directories(${PROJECT_NAME}_sql PUBLIC ${CMAKE_SOURCE_DIR}/src/storages/sql/include)
+
 target_link_libraries(
     ${PROJECT_NAME}_objs
     PUBLIC userver::core
            userver::postgresql
+           ${PROJECT_NAME}_sql
 )
-
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
