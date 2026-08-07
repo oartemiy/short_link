@@ -7,7 +7,7 @@
 
 namespace short_link::handlers {
 
-class Info : public userver::server::handlers::HttpHandlerJsonBase {
+class Info final: public userver::server::handlers::HttpHandlerJsonBase {
 public:
     static constexpr std::string_view kName = "handler-info";
 

@@ -10,7 +10,7 @@
 
 namespace short_link::handlers {
 
-class Delete : public userver::server::handlers::HttpHandlerJsonBase {
+class Delete final : public userver::server::handlers::HttpHandlerJsonBase {
 public:
     static constexpr std::string_view kName = "handler-delete";
 
